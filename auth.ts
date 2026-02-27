@@ -1,34 +1,45 @@
-import { TypeORMLegacyAdapter } from "@next-auth/typeorm-legacy-adapter";
-import { User as NextAuthUser, Session } from "next-auth";
+import { NextAuthOptions, User as NextAuthUser, Session } from "next-auth";
 import type { DefaultJWT } from "next-auth/jwt";
-import EmailProvider from "next-auth/providers/email";
+import Credentials from "next-auth/providers/credentials";
 import Github from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-import { createTransport } from "nodemailer";
-import { AppDataSourceOptions } from "./app/api/connection";
+import { getDataSource } from "./app/api/connection";
+import { UsersService } from "./app/api/services/user.service";
+import { CreateUser } from "./lib/types/user";
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
-    EmailProvider({
-      from: process.env.EMAIL_SERVER_FROM || "noreply@remenex.com",
-      maxAge: 10 * 60,
-      sendVerificationRequest: async ({ identifier: email, url, provider }) => {
-        const transporter = createTransport({
-          host: process.env.EMAIL_SERVER_HOST,
-          port: Number(process.env.EMAIL_SERVER_PORT),
-          secure: true,
-          auth: {
-            user: process.env.EMAIL_SERVER_USER,
-            pass: process.env.EMAIL_SERVER_PASSWORD,
-          },
-        });
+    Credentials({
+      id: "email-otp",
+      name: "OTP Code",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        otp: { label: "Code", type: "text" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.otp) return null;
 
-        await transporter.sendMail({
-          to: email,
-          from: provider.from,
-          subject: "Your sign-in link",
-          html: `<p>Sign in using this link: <a href="${url}">${url}</a></p>`,
-        });
+        try {
+          const ds = await getDataSource();
+          const userService = new UsersService(ds);
+
+          const user = await userService.verifyOtp(
+            credentials.email,
+            credentials.otp,
+          );
+
+          if (user) {
+            return {
+              id: user.id.toString(),
+              name: user.name,
+              email: user.email,
+            };
+          }
+          return null;
+        } catch (error) {
+          console.error("Auth error:", error);
+          return null;
+        }
       },
     }),
 
@@ -43,8 +54,6 @@ export const authOptions = {
     }),
   ],
 
-  adapter: TypeORMLegacyAdapter(AppDataSourceOptions),
-
   session: { strategy: "jwt" as const }, // ili "jwt" za credentials-only
 
   pages: {
@@ -53,6 +62,29 @@ export const authOptions = {
   },
 
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (!user || !user.email) return false;
+      if (account?.provider !== "email-otp") {
+        try {
+          const ds = await getDataSource();
+          const userService = new UsersService(ds);
+
+          const userData: CreateUser = {
+            name: user.name ?? "",
+            email: user.email,
+            emailVerified: new Date(),
+          };
+
+          await userService.findOrCreateByEmail(userData);
+
+          return true;
+        } catch (error) {
+          console.error("Greška pri čuvanju:", error);
+          return false;
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }: { token: DefaultJWT; user: NextAuthUser }) {
       if (user) {
         token.id = user.id;

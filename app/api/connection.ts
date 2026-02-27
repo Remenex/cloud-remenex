@@ -1,15 +1,17 @@
+import { User } from "@/app/api/entities/user.entity";
+import "reflect-metadata";
 import { DataSource, DataSourceOptions } from "typeorm";
 
 export const AppDataSourceOptions: DataSourceOptions = {
-  type: "postgres",
-  host: process.env.POSTGRES_HOST || "localhost",
-  port: Number(process.env.POSTGRES_PORT) || 5432,
-  username: process.env.POSTGRES_USER || "postgres",
-  password: process.env.POSTGRES_PASSWORD || "postgres",
-  database: process.env.POSTGRES_DB || "cloud-remenex",
+  type: "mysql",
+  host: process.env.DB_HOST || "localhost",
+  port: Number(process.env.DB_PORT) || 3306,
+  username: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "cloud_remenex",
   synchronize: true,
   logging: true,
-  entities: [],
+  entities: [User],
 };
 
 declare global {
