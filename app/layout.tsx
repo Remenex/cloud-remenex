@@ -29,6 +29,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* <div className="flex m-4 items-center">
+          <Image
+            width={50}
+            height={50}
+            src="/images/logo-transparent.svg"
+            alt="logo"
+          />
+        </div> */}
         <Toaster position="top-center" richColors />
         <Provider>{children}</Provider>
       </body>
