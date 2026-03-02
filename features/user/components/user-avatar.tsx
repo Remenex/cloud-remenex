@@ -21,7 +21,7 @@ export default function UserAvatar({ sizeRem }: Props) {
   return (
     <div
       style={{ ...sizeStyle, backgroundColor: bgColor }}
-      className="rounded-full text-white/60 flex items-center justify-center text-xl/8 gap-1"
+      className="rounded-full text-white/60 flex items-center justify-center text-xl/8 gap-0.5"
     >
       <span>{firstname.charAt(0).toLocaleUpperCase()}</span>
       <span>{lastname.charAt(0).toLocaleUpperCase()}</span>

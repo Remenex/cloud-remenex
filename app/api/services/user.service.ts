@@ -9,6 +9,12 @@ export class UsersService {
     return this.dataSource.getRepository(User);
   }
 
+  async getUserByEmail(email: string) {
+    return await this.repo.findOne({
+      where: { email },
+    });
+  }
+
   async findOrCreateByEmail(userData: CreateUser) {
     let user = await this.repo.findOne({
       where: { email: userData.email },

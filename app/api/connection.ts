@@ -1,6 +1,7 @@
 import { User } from "@/app/api/entities/user.entity";
 import "reflect-metadata";
 import { DataSource, DataSourceOptions } from "typeorm";
+import { File } from "./entities/file.entity";
 
 export const AppDataSourceOptions: DataSourceOptions = {
   type: "mysql",
@@ -11,7 +12,7 @@ export const AppDataSourceOptions: DataSourceOptions = {
   database: process.env.DB_NAME || "cloud_remenex",
   synchronize: true,
   logging: true,
-  entities: [User],
+  entities: [User, File],
 };
 
 declare global {
