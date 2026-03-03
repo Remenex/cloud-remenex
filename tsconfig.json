@@ -24,6 +24,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,
+    "baseUrl": ".",
+   
   },
   "include": [
     "next-env.d.ts",

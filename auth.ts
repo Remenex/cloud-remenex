@@ -75,7 +75,9 @@ export const authOptions: NextAuthOptions = {
             emailVerified: new Date(),
           };
 
-          await userService.findOrCreateByEmail(userData);
+          const dbUser = await userService.findOrCreateByEmail(userData);
+
+          user.id = dbUser.id.toString();
 
           return true;
         } catch (error) {

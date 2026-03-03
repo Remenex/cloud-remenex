@@ -1,3 +1,4 @@
+import GridBackground from "@/components/grid-background";
 import Navigation from "@/features/navigation/components/navigation";
 
 export default function MainLayout({
@@ -7,6 +8,7 @@ export default function MainLayout({
 }) {
   return (
     <>
+      <GridBackground />
       <Navigation />
       <main className="px-2">{children}</main>
     </>

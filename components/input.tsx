@@ -15,7 +15,7 @@ export default function Input({
 }: Props) {
   return (
     <input
-      className="w-full border border-border px-3 py-3 rounded-xl"
+      className="w-full border border-border-grey px-3 py-3 rounded-xl"
       type={type}
       placeholder={placeholder}
       value={value}

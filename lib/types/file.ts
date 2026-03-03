@@ -10,3 +10,5 @@ export type CreateFile = Omit<
   File,
   "id" | "path" | "filename" | "createdAt" | "updatedAt"
 >;
+
+export type PlainFile = Omit<File, "user">;

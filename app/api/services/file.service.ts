@@ -1,7 +1,7 @@
 import { File } from "@/app/api/entities/file.entity";
 import { FileVisibility } from "@/lib/types/file";
 import { randomUUID } from "crypto";
-import { mkdir, unlink, writeFile } from "fs/promises";
+import { mkdir, readdir, rmdir, unlink, writeFile } from "fs/promises";
 import path from "path";
 import { DataSource, Repository } from "typeorm";
 import { User } from "../entities/user.entity";
@@ -68,6 +68,45 @@ export class FileService {
         await unlink(filePath).catch(() => {});
       }
 
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async deleteFileById(id: string) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const file = await queryRunner.manager.findOne(File, { where: { id } });
+      if (!file) {
+        throw new Error("File not found");
+      }
+
+      if (file.path) {
+        const folderPath = path.dirname(file.path);
+
+        await unlink(file.path).catch((err) => {
+          console.warn("Failed to delete file from disk:", err);
+        });
+
+        const filesInFolder = await readdir(folderPath);
+        if (filesInFolder.length === 0) {
+          await rmdir(folderPath).catch((err) => {
+            console.warn("Failed to delete folder:", err);
+          });
+        }
+      }
+
+      await queryRunner.manager.remove(File, file);
+
+      await queryRunner.commitTransaction();
+
+      return { success: true, message: "File deleted successfully" };
+    } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {

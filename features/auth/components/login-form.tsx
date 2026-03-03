@@ -86,7 +86,7 @@ export default function LoginForm() {
             <Button text="Continue with Email" type="submit" />
           </form>
 
-          <div className="w-full border-b border-border my-6"></div>
+          <div className="w-full border-b border-border-grey my-6"></div>
 
           <div className="flex flex-col gap-4">
             <Button
@@ -94,7 +94,7 @@ export default function LoginForm() {
                 <Image src="icons/google.svg" alt="G" height={20} width={20} />
               }
               text="Continue with Google"
-              style="bg-transparent text-white border border-border"
+              variant={"secondary"}
               onClick={() => signIn("google", { callbackUrl: "/" })}
             />
             <Button
@@ -108,7 +108,7 @@ export default function LoginForm() {
                 />
               }
               text="Continue with GitHub"
-              style="bg-transparent text-white border border-border"
+              variant={"secondary"}
               onClick={() => signIn("github", { callbackUrl: "/" })}
             />
           </div>
@@ -133,7 +133,7 @@ export default function LoginForm() {
                 }}
                 onChange={(e) => handleChange(e.target.value, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
-                className="w-10 h-12 text-center text-xl font-bold bg-neutral-800 border border-border rounded focus:border-white outline-none transition-all"
+                className="w-10 h-12 text-center text-xl font-bold bg-neutral-800 border border-border-grey rounded focus:border-white outline-none transition-all"
               />
             ))}
           </div>

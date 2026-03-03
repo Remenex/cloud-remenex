@@ -107,10 +107,10 @@ export default function Upload() {
     <div className="flex flex-col items-center w-full">
       {!file && !uploading && (
         <div
-          className={`relative w-full sm:w-2xl p-20 border border-border max-w-3xl h-96 rounded-4xl flex flex-col items-center justify-center
+          className={`relative w-full sm:w-3xl p-20 bg-border border border-border max-w-3xl h-96 rounded-4xl flex flex-col items-center justify-center
           transition-all duration-300
           ${hover ? "cursor-none" : "cursor-pointer"}
-          ${dragOver ? "bg-border" : ""}
+          ${dragOver ? "bg-border-grey" : ""}
         `}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
@@ -127,7 +127,7 @@ export default function Upload() {
 
           {hover && (
             <div
-              className="whitespace-nowrap flex items-center gap-2 bg-border pointer-events-none absolute px-4 py-2 text-white text-sm rounded-full shadow-xl transition-transform duration-75"
+              className="whitespace-nowrap flex items-center gap-2 bg-border-grey pointer-events-none absolute px-4 py-2 text-white text-sm rounded-full shadow-xl transition-transform duration-75"
               style={{
                 left: cursorPos.x,
                 top: cursorPos.y,
@@ -155,7 +155,7 @@ export default function Upload() {
           <div>
             <span>{uploadProgress}%</span>
           </div>
-          <div className="w-full h-2 bg-border rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-border-grey rounded-full overflow-hidden">
             <div
               className="h-full bg-white transition-all"
               style={{ width: `${uploadProgress}%` }}
