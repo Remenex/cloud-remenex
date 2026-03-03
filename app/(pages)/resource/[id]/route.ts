@@ -6,12 +6,14 @@ import path from "path";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
   const ds = await getDataSource();
   const fileService = new FileService(ds);
 
-  const file = await fileService.getFileById(params.id);
+  const { id } = await context.params;
+
+  const file = await fileService.getFileById(id);
   if (!file)
     return NextResponse.json({ error: "File not found" }, { status: 404 });
 

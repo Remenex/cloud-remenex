@@ -6,8 +6,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await context.params;
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -18,7 +19,7 @@ export async function DELETE(
   const fileService = new FileService(ds);
 
   try {
-    await fileService.deleteFileById(params.id);
+    await fileService.deleteFileById(id);
     return NextResponse.json({ success: true });
   } catch (err) {
     return NextResponse.json(
