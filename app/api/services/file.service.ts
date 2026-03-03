@@ -13,6 +13,17 @@ export class FileService {
     return this.dataSource.getRepository(File);
   }
 
+  async getUserFiles(userId: string) {
+    return await this.repo.find({
+      where: { userId: userId },
+      order: { createdAt: "DESC" },
+    });
+  }
+
+  async getFileById(id: string) {
+    return await this.repo.findOneBy({ id });
+  }
+
   async uploadAndCreate(
     file: globalThis.File,
     user: User,

@@ -69,7 +69,7 @@ export default function Upload() {
     formData.append("file", file);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/upload");
+    xhr.open("POST", "/api/file/upload");
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {
@@ -104,13 +104,13 @@ export default function Upload() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center w-full">
       {!file && !uploading && (
         <div
-          className={`relative w-2xl p-20 border border-border max-w-3xl h-96 rounded-4xl flex flex-col items-center justify-center
+          className={`relative w-full sm:w-2xl p-20 border border-border max-w-3xl h-96 rounded-4xl flex flex-col items-center justify-center
           transition-all duration-300
           ${hover ? "cursor-none" : "cursor-pointer"}
-          ${dragOver ? "scale-105" : ""}
+          ${dragOver ? "bg-border" : ""}
         `}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
@@ -123,7 +123,7 @@ export default function Upload() {
             setHover(false);
           }}
         >
-          <p>Drag the file here or click to select</p>
+          <p className="text-center">Drag the file here or click to select</p>
 
           {hover && (
             <div
@@ -151,7 +151,7 @@ export default function Upload() {
       )}
 
       {file && uploading && (
-        <div className="w-2xl text-sm flex flex-col gap-1">
+        <div className="w-full sm:w-2xl text-sm flex flex-col gap-1">
           <div>
             <span>{uploadProgress}%</span>
           </div>
