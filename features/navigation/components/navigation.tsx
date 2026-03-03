@@ -13,7 +13,7 @@ export default function Navigation() {
           <UserAvatar sizeRem={3} />
         </Link>
         <NavIcon icon={<House size={30} />} link="/" />
-        <NavIcon icon={<Files size={30} />} link="#" />
+        <NavIcon icon={<Files size={30} />} link="/files" />
         <NavIcon icon={<Puzzle size={30} />} link="#" />
         <NavIcon icon={<Settings size={30} />} link="#" />
       </nav>

@@ -15,18 +15,16 @@ export const AppDataSourceOptions: DataSourceOptions = {
   entities: [User, File],
 };
 
-declare global {
-  var _appDataSource: DataSource | undefined;
-}
+let AppDataSource: DataSource;
 
 export const getDataSource = async (): Promise<DataSource> => {
-  if (global._appDataSource && global._appDataSource.isInitialized) {
-    return global._appDataSource;
+  if (AppDataSource?.isInitialized) return AppDataSource;
+
+  AppDataSource = new DataSource(AppDataSourceOptions);
+  if (!AppDataSource.isInitialized) {
+    await AppDataSource.initialize();
+    console.log("DataSource initialized");
   }
 
-  const AppDataSource = new DataSource(AppDataSourceOptions);
-  global._appDataSource = await AppDataSource.initialize();
-  console.log("DataSource initialized");
-
-  return global._appDataSource;
+  return AppDataSource;
 };

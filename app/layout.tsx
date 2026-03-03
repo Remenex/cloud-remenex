@@ -1,8 +1,6 @@
 import Provider from "@/lib/context/provider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Image from "next/image";
-import Link from "next/link";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -31,14 +29,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Link href="/" className="flex m-4 items-center absolute">
-          <Image
-            width={50}
-            height={50}
-            src="/images/logo-transparent.svg"
-            alt="logo"
-          />
-        </Link>
         <Toaster position="top-center" richColors />
         <Provider>{children}</Provider>
       </body>
