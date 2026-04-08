@@ -23,9 +23,8 @@
     },
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false,
-    "baseUrl": ".",
-   
+    "strictPropertyInitialization": false
+    // "baseUrl": ".",
   },
   "include": [
     "next-env.d.ts",
