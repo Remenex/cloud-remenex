@@ -133,6 +133,28 @@ export class FileService {
       await queryRunner.release();
     }
   }
+
+  async updateFileName(id: string, newName: string) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const file = await queryRunner.manager.findOne(File, { where: { id } });
+      if (!file) throw new Error("File not found");
+
+      file.originalName = newName;
+      const updatedFile = await queryRunner.manager.save(file);
+
+      await queryRunner.commitTransaction();
+      return updatedFile;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
 }
 
 function formatDuration(seconds: number) {

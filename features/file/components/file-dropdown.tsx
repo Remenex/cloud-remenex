@@ -8,10 +8,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PlainFile } from "@/lib/types/file";
-import { Copy, EllipsisVertical, ExternalLink } from "lucide-react";
+import { Copy, Edit, EllipsisVertical, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { DeleteFileDialog } from "./delete-dialog";
+import { RenameDialog } from "./rename-dialog";
 
 export function FileDropdown({ file }: { file: PlainFile }) {
   const resourceLink = `${typeof window !== "undefined" ? window.location.origin : ""}/resource/${file.id}`;
@@ -42,6 +43,7 @@ export function FileDropdown({ file }: { file: PlainFile }) {
               Open
             </DropdownMenuItem>
           </Link>
+          <RenameDialog file={file} />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>

@@ -64,7 +64,7 @@ const VideoCard = ({ file, onEmbedClick }: VideoCardProps) => {
 
       <div className="p-4 space-y-3">
         <h3 className="font-medium text-foreground text-sm leading-snug line-clamp-1">
-          {file.filename}
+          {file.originalName}
         </h3>
 
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
