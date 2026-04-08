@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { DropdownMenuAvatar } from "./dropdown-menu-avatar";
+import { DropdownMenuAvatar } from "../features/user/components/dropdown-menu-avatar";
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -21,7 +21,10 @@ export function AppSidebar() {
   //   const navigate = useNavigate();
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border">
+    <Sidebar
+      collapsible="icon"
+      className="border-r border-border bg-background"
+    >
       <SidebarContent>
         <div className="px-2 py-5 flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow shrink-0">

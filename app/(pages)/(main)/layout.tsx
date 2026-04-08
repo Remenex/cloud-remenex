@@ -1,26 +1,15 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import GridBackground from "@/components/grid-background";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import Navigation from "@/features/navigation/components/navigation";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // return (
-  //   <>
-  //     {/* <GridBackground /> */}
-  //     <Navigation />
-  //     <main className="px-2">{children}</main>
-  //   </>
-  // );
-
   return (
-    <SidebarProvider>
+    <SidebarProvider className="min-h-screen flex w-full bg-background">
       <AppSidebar />
-      <main>
-        <SidebarTrigger />
+      <main className="flex-1 flex flex-col min-w-0 bg-background">
         {children}
       </main>
     </SidebarProvider>
