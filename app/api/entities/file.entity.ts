@@ -27,6 +27,9 @@ export class File {
   @Column()
   mimeType: string;
 
+  @Column()
+  thumbnail: string;
+
   @Column("bigint")
   size: number;
 
@@ -37,9 +40,13 @@ export class File {
   })
   visibility: FileVisibility;
 
+  @Column()
+  duration: string;
+
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })
   user: User;
+
   @Column()
   userId: string;
 

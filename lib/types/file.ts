@@ -8,7 +8,13 @@ export enum FileVisibility {
 
 export type CreateFile = Omit<
   File,
-  "id" | "path" | "filename" | "createdAt" | "updatedAt"
+  | "id"
+  | "path"
+  | "filename"
+  | "createdAt"
+  | "updatedAt"
+  | "thumbnail"
+  | "duration"
 >;
 
 export type PlainFile = Omit<File, "user">;

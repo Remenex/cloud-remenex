@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X, FileVideo, CheckCircle2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface UploadModalProps {
   open: boolean;

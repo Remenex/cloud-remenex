@@ -5,6 +5,10 @@ import { mkdir, readdir, rmdir, unlink, writeFile } from "fs/promises";
 import path from "path";
 import { DataSource, Repository } from "typeorm";
 import { User } from "../entities/user.entity";
+import { exec } from "child_process";
+import { promisify } from "util";
+
+const execAsync = promisify(exec);
 
 export class FileService {
   constructor(private dataSource: DataSource) {}
@@ -48,6 +52,20 @@ export class FileService {
       const buffer = Buffer.from(await file.arrayBuffer());
       await writeFile(filePath, buffer);
 
+      const thumbFilename = `${fileId}.png`;
+      const thumbPath = path.join(userFolder, thumbFilename);
+
+      await execAsync(
+        `ffmpeg -i "${filePath}" -ss 00:00:01 -vframes 1 "${thumbPath}"`,
+      );
+
+      const { stdout } = await execAsync(
+        `ffprobe -v error -show_entries format=duration -of csv=p=0 "${filePath}"`,
+      );
+
+      const durationSeconds = Math.floor(parseFloat(stdout));
+      const durationFormatted = formatDuration(durationSeconds);
+
       const newFile = queryRunner.manager.create(File, {
         id: fileId,
         originalName: file.name,
@@ -57,6 +75,8 @@ export class FileService {
         size: file.size,
         visibility: visibility,
         user: user,
+        thumbnail: thumbFilename,
+        duration: durationFormatted,
       });
 
       const savedFile = await queryRunner.manager.save(newFile);
@@ -113,4 +133,16 @@ export class FileService {
       await queryRunner.release();
     }
   }
+}
+
+function formatDuration(seconds: number) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+
+  return [
+    h.toString().padStart(2, "0"),
+    m.toString().padStart(2, "0"),
+    s.toString().padStart(2, "0"),
+  ].join(":");
 }

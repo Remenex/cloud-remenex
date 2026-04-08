@@ -34,7 +34,7 @@ export function FileDropdown({ file }: { file: PlainFile }) {
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={handleCopy}>
             <Copy />
-            Copy
+            Copy Link
           </DropdownMenuItem>
           <Link href={`/resource/${file.id}`} target="_blank">
             <DropdownMenuItem>
