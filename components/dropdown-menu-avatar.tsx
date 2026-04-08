@@ -1,13 +1,11 @@
+"use client";
 import {
   BadgeCheckIcon,
-  BellIcon,
   ChevronsUpDown,
   CreditCardIcon,
   LogOutIcon,
-  Menu,
 } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -17,12 +15,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { signOut, useSession } from "next-auth/react";
+import { UserAvatar } from "./user-avatar";
 
 type Props = {
   expanded: boolean;
 };
 
 export function DropdownMenuAvatar({ expanded }: Props) {
+  const { data: session } = useSession();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -32,16 +33,17 @@ export function DropdownMenuAvatar({ expanded }: Props) {
           <div
             className={`flex gap-2 w-full items-center ${expanded ? "justify-start" : "justify-center"}`}
           >
-            <Avatar className={`${expanded ? "w-8 h-8" : "w-6 h-6"}`}>
-              <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
-              <AvatarFallback>LR</AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              name={session?.user.name ?? "Unknown User"}
+              width={expanded ? 32 : 24}
+              height={expanded ? 32 : 24}
+            />
             {expanded && (
               <div className="flex-col items-start justify-start">
                 <p className="font-semibold text-s text-white text-start">
-                  Djordje Ivanovic
+                  {session?.user.name}
                 </p>
-                <p className="text-xs text-white">idjordje63@gmail.com</p>
+                <p className="text-xs text-white">{session?.user.email}</p>
               </div>
             )}
           </div>
@@ -58,13 +60,9 @@ export function DropdownMenuAvatar({ expanded }: Props) {
             <CreditCardIcon />
             Billing
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <BellIcon />
-            Notifications
-          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
           <LogOutIcon />
           Sign Out
         </DropdownMenuItem>
