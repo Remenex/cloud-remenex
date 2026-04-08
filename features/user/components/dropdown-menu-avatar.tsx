@@ -35,8 +35,8 @@ export function DropdownMenuAvatar({ expanded }: Props) {
           >
             <UserAvatar
               name={session?.user.name ?? "Unknown User"}
-              width={expanded ? 32 : 24}
-              height={expanded ? 32 : 24}
+              width={expanded ? 32 : 28}
+              height={expanded ? 32 : 28}
             />
             {expanded && (
               <div className="flex-col items-start justify-start">

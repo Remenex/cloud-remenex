@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { DropdownMenuAvatar } from "../features/user/components/dropdown-menu-avatar";
+import Image from "next/image";
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -26,16 +27,23 @@ export function AppSidebar() {
       className="border-r border-border bg-background"
     >
       <SidebarContent>
-        <div className="px-2 py-5 flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow shrink-0">
-            <Play className="w-3.5 h-3.5 text-blue-700 fill-current" />
+        {collapsed ? (
+          <div className="px-2 py-8 w-full h-8 relative flex justify-center">
+            <Image
+              src={"/images/RemenexCloud Favicon Black.svg"}
+              fill
+              alt="Remenex Cloud"
+            />
           </div>
-          {!collapsed && (
-            <span className="text-base font-semibold text-foreground tracking-tight">
-              RemenexCloud
-            </span>
-          )}
-        </div>
+        ) : (
+          <div className="px-2 py-8 flex items-center gap-2.5 relative w-2/3 h-10">
+            <Image
+              src={"/images/RemenexCloud Black.svg"}
+              fill
+              alt="Remenex Cloud"
+            />
+          </div>
+        )}
 
         <SidebarGroup>
           <SidebarGroupContent>
