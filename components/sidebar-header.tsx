@@ -4,12 +4,30 @@ import { Button } from "./ui/button";
 import { SidebarTrigger } from "./ui/sidebar";
 import { useState } from "react";
 import UploadModal from "../features/file/components/upload-modal";
+import { toast } from "sonner";
 
 export default function SidebarHeader() {
   const [uploadModalOpened, setUploadModalOpened] = useState<boolean>(false);
 
   const handleUploadModal = (x: boolean) => {
     setUploadModalOpened(x);
+  };
+
+  const uploadFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      toast.success("File Uploaded", data.file);
+    } else {
+      toast.error("Upload Failed", data.error);
+    }
   };
 
   return (
@@ -35,7 +53,7 @@ export default function SidebarHeader() {
       <UploadModal
         open={uploadModalOpened}
         onClose={() => handleUploadModal(false)}
-        onComplete={() => handleUploadModal(false)}
+        onComplete={() => uploadFile}
       />
     </>
   );

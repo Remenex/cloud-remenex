@@ -3,11 +3,12 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X, FileVideo, CheckCircle2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
 
 interface UploadModalProps {
   open: boolean;
   onClose: () => void;
-  onComplete: (file: { name: string }) => void;
+  onComplete: (file: { name: string; [key: string]: any }) => void;
 }
 
 const UploadModal = ({ open, onClose, onComplete }: UploadModalProps) => {
@@ -16,38 +17,70 @@ const UploadModal = ({ open, onClose, onComplete }: UploadModalProps) => {
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [done, setDone] = useState(false);
-
-  const simulateUpload = useCallback(
-    (f: File) => {
-      setFile(f);
-      setUploading(true);
-      setProgress(0);
-      let p = 0;
-      const interval = setInterval(() => {
-        p += Math.random() * 15 + 5;
-        if (p >= 100) {
-          p = 100;
-          clearInterval(interval);
-          setUploading(false);
-          setDone(true);
-          setTimeout(() => {
-            onComplete({ name: f.name });
-            resetState();
-            onClose();
-          }, 1200);
-        }
-        setProgress(Math.min(p, 100));
-      }, 300);
-    },
-    [onComplete, onClose],
-  );
+  const [uploadedBytes, setUploadedBytes] = useState(0);
 
   const resetState = () => {
     setFile(null);
     setProgress(0);
     setUploading(false);
     setDone(false);
+    setUploadedBytes(0);
   };
+
+  const uploadFile = useCallback(
+    (file: File) => {
+      setFile(file);
+      setUploading(true);
+      setProgress(0);
+      setUploadedBytes(0);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/file/upload");
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = (event.loaded / event.total) * 100;
+          setProgress(percent);
+          setUploadedBytes(event.loaded);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          setProgress(100);
+          setUploading(false);
+          setDone(true);
+
+          const response = JSON.parse(xhr.responseText);
+          onComplete({ name: file.name, ...response.file });
+
+          setTimeout(() => {
+            resetState();
+            onClose();
+            toast.success("Upload complete!");
+          }, 1200);
+        } else {
+          console.error("Upload failed", xhr.responseText);
+          toast.error("Upload failed!");
+          resetState();
+          onClose();
+        }
+      };
+
+      xhr.onerror = () => {
+        console.error("Upload error");
+        toast.error("Upload error!");
+        resetState();
+        onClose();
+      };
+
+      xhr.send(formData);
+    },
+    [onClose, onComplete],
+  );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -55,15 +88,21 @@ const UploadModal = ({ open, onClose, onComplete }: UploadModalProps) => {
       setDragging(false);
       const f = e.dataTransfer.files[0];
       if (f && f.type.startsWith("video/")) {
-        simulateUpload(f);
+        uploadFile(f);
+      } else {
+        toast.error("Only video files are allowed.");
       }
     },
-    [simulateUpload],
+    [uploadFile],
   );
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
-    if (f) simulateUpload(f);
+    if (f && f.type.startsWith("video/")) {
+      uploadFile(f);
+    } else {
+      toast.error("Only video files are allowed.");
+    }
   };
 
   if (!open) return null;
@@ -155,7 +194,7 @@ const UploadModal = ({ open, onClose, onComplete }: UploadModalProps) => {
                     <p className="text-xs text-muted-foreground">
                       {done
                         ? "Upload complete"
-                        : `Uploading... ${Math.round(progress)}%`}
+                        : `Uploading... ${Math.round(progress)}% (${(uploadedBytes / 1024 / 1024).toFixed(2)} MB of ${(file.size / 1024 / 1024).toFixed(2)} MB)`}
                     </p>
                   </div>
                 </div>
