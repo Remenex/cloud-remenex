@@ -1,5 +1,5 @@
 "use client";
-import { Play, LayoutDashboard } from "lucide-react";
+import { Play, LayoutDashboard, CreditCard } from "lucide-react";
 
 import {
   Sidebar,
@@ -15,11 +15,13 @@ import {
 import Link from "next/link";
 import { DropdownMenuAvatar } from "../features/user/components/dropdown-menu-avatar";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  //   const navigate = useNavigate();
+  const pathname = usePathname();
+  const isActive = (path: string) => pathname === path;
 
   return (
     <Sidebar
@@ -45,17 +47,46 @@ export function AppSidebar() {
           </div>
         )}
 
-        <SidebarGroup>
+        <SidebarGroup className="mt-3">
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="mb-1">
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link
                     href="/"
-                    className="hover:bg-accent/50 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors"
+                    className={`rounded-lg px-3 py-2 text-sm transition-colors
+                    ${
+                      isActive("/")
+                        ? "bg-accent text-foreground"
+                        : "text-muted-foreground hover:bg-accent/50"
+                    }
+                  `}
                   >
                     <LayoutDashboard className="mr-2 h-4 w-4" />
-                    {!collapsed && <span>Dashboard</span>}
+                    {!collapsed && (
+                      <span className="font-semibold">Dashboard</span>
+                    )}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    href="/plans"
+                    className={`rounded-lg px-3 py-2 text-sm transition-colors
+                    ${
+                      isActive("/plans")
+                        ? "bg-accent text-foreground"
+                        : "text-muted-foreground hover:bg-accent/50"
+                    }
+                  `}
+                  >
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    {!collapsed && (
+                      <span className="font-semibold">Plans & Billing</span>
+                    )}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

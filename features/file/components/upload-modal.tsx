@@ -64,8 +64,8 @@ const UploadModal = ({ open, onClose, onComplete }: UploadModalProps) => {
             toast.success("Upload complete!");
           }, 1200);
         } else {
-          console.error("Upload failed", xhr.responseText);
-          toast.error("Upload failed!");
+          // console.error("Upload failed", xhr.responseText);
+          toast.error(xhr.responseText || "Upload Failed");
           resetState();
           onClose();
         }
@@ -73,7 +73,7 @@ const UploadModal = ({ open, onClose, onComplete }: UploadModalProps) => {
 
       xhr.onerror = () => {
         console.error("Upload error");
-        toast.error("Upload error!");
+        toast.error("Upload error");
         resetState();
         onClose();
       };

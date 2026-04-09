@@ -6,8 +6,6 @@ import { getDataSource } from "../../connection";
 import { FileService } from "../../services/file.service";
 import { UsersService } from "../../services/user.service";
 
-const MAX_SIZE = 200 * 1024 * 1024; //200mb
-
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -32,33 +30,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "File is required" }, { status: 400 });
     }
 
-    if (!video.type.startsWith("video/")) {
+    try {
+      const savedFile = await fileService.uploadAndCreate(
+        video,
+        user,
+        FileVisibility.PUBLIC,
+      );
+
+      return NextResponse.json({
+        success: true,
+        file: savedFile,
+      });
+    } catch (error) {
       return NextResponse.json(
-        { error: "Only video files allowed" },
-        { status: 400 },
+        { error: error instanceof Error ? error.message : String(error) },
+        { status: 500 },
       );
     }
-
-    if (video.size > MAX_SIZE) {
-      return NextResponse.json(
-        { error: "File too large (max 200MB)" },
-        { status: 400 },
-      );
-    }
-
-    const savedFile = await fileService.uploadAndCreate(
-      video,
-      user,
-      FileVisibility.PUBLIC,
-    );
-
-    return NextResponse.json({
-      success: true,
-      file: savedFile,
-    });
   } catch (error) {
     console.error("Upload error:", error);
 
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    return NextResponse.json({ error: error }, { status: 500 });
   }
 }

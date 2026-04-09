@@ -23,7 +23,6 @@ export const getDataSource = async (): Promise<DataSource> => {
   AppDataSource = new DataSource(AppDataSourceOptions);
   if (!AppDataSource.isInitialized) {
     await AppDataSource.initialize();
-    console.log("DataSource initialized");
   }
 
   return AppDataSource;

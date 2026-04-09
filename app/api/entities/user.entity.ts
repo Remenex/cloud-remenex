@@ -17,6 +17,9 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Column({ default: "FREE" })
+  plan: "FREE" | "CREATOR" | "PRO";
+
   @Column({ type: "timestamp", nullable: true })
   emailVerified?: Date;
 

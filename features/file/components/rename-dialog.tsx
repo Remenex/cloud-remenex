@@ -28,7 +28,6 @@ export function RenameDialog({ file, onRename }: Props) {
   const router = useRouter();
 
   const handleSubmit = async () => {
-    console.log("Djole");
     if (!newName.trim()) return toast.error("Name cannot be empty");
 
     setLoading(true);

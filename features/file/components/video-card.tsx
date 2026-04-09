@@ -17,7 +17,7 @@ const VideoCard = ({ file, onEmbedClick }: VideoCardProps) => {
   const [copied, setCopied] = useState(false);
   const [hovered, setHovered] = useState(false);
   const resourceLink = `${typeof window !== "undefined" ? window.location.origin : ""}/resource/${file.id}`;
-  const thumbnail = "/api/file/thumbnail/" + file.id;
+  const thumbnail = `/api/file/thumbnail/${file.id}`;
   const [openFullScreen, setOpenFullScreen] = useState<boolean>(false);
 
   const embedCode = `<iframe

@@ -77,10 +77,9 @@ const EmbedCodePanel = ({
 
             <Button
               onClick={handleCopy}
-              className="w-full gap-2 text-white"
+              className="w-full gap-2 text-white cursor-pointer font-semibold"
               style={{
-                background:
-                  "linear-gradient(135deg, hsl(225 80% 60%), hsl(260 70% 65%))",
+                background: "linear-gradient(135deg, #dc2626, #ec4899)",
               }}
             >
               {copied ? (

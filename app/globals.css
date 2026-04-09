@@ -19,6 +19,8 @@
   --color-brand-blue: var(--brand-blue);
   --color-text: var(--text-color);
 
+  --gradient-primary: linear-gradient(135deg, #dc2626, #ec4899);
+
   /* shadcn */
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -146,4 +148,8 @@ body {
   to {
     background-position: 40px 40px;
   }
+}
+
+.gradient-primary {
+  background: var(--gradient-primary);
 }

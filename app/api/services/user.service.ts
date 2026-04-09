@@ -1,4 +1,5 @@
 import { User } from "@/app/api/entities/user.entity";
+import { PLANS } from "@/lib/config/plans";
 import { CreateUser } from "@/lib/types/user";
 import { DataSource, Repository } from "typeorm";
 
@@ -12,6 +13,12 @@ export class UsersService {
   async getUserByEmail(email: string) {
     return await this.repo.findOne({
       where: { email },
+    });
+  }
+
+  async findById(userId: string) {
+    return await this.repo.findOne({
+      where: { id: userId },
     });
   }
 
