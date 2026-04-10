@@ -27,7 +27,12 @@ export class FileService {
   }
 
   async getFileById(id: string) {
-    return await this.repo.findOneBy({ id });
+    return await this.repo.findOne({
+      where: { id },
+      relations: {
+        user: true,
+      },
+    });
   }
 
   async uploadAndCreate(
