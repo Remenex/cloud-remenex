@@ -2,6 +2,7 @@ import { getDataSource } from "@/app/api/connection";
 import { FileService } from "@/app/api/services/file.service";
 import { NextResponse } from "next/server";
 import { readFile } from "fs/promises";
+import path from "path";
 
 export async function GET(
   req: Request,
@@ -16,7 +17,11 @@ export async function GET(
   const file = await fileService.getFileById(id);
   if (!file) return new NextResponse("Not found", { status: 404 });
 
-  const thumbnailPath = file.path.replace(/\.\w+$/, ".png");
+  const thumbnailPath = path.join(
+    path.dirname(file.path),
+    file.thumbnail
+  );
+  console.log("Thumbnail path: " + thumbnailPath);
   const buffer = await readFile(thumbnailPath);
 
   return new NextResponse(buffer, {

@@ -10,6 +10,13 @@ import {
 } from "typeorm";
 import { User } from "./user.entity"; // normalan import
 
+enum FileStatus {
+  UPLOADING = "UPLOADING",
+  PROCESSING = "PROCESSING",
+  READY = "READY",
+  FAILED = "FAILED",
+}
+
 @Entity("files")
 export class File {
   @PrimaryGeneratedColumn("uuid")
@@ -27,7 +34,7 @@ export class File {
   @Column()
   mimeType: string;
 
-  @Column()
+  @Column({default: ""})
   thumbnail: string;
 
   @Column("bigint")
@@ -40,8 +47,11 @@ export class File {
   })
   visibility: FileVisibility;
 
-  @Column()
+  @Column({default: "00:00:00"})
   duration: string;
+
+  @Column()
+  status: FileStatus;
 
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })

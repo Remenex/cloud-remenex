@@ -12,6 +12,13 @@ import { promises as fs } from "fs";
 
 const execAsync = promisify(exec);
 
+enum FileStatus {
+  UPLOADING = "UPLOADING",
+  PROCESSING = "PROCESSING",
+  READY = "READY",
+  FAILED = "FAILED",
+}
+
 export class FileService {
   constructor(private dataSource: DataSource) {}
 
@@ -35,112 +42,104 @@ export class FileService {
     });
   }
 
-  async uploadAndCreate(
-    file: globalThis.File,
-    user: User,
-    visibility: FileVisibility,
-  ) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    const plan = PLANS[user.plan];
+async uploadAndCreate(file: globalThis.File, user: User, visibility: FileVisibility) {
+  const plan = PLANS[user.plan];
 
-    let filePath: string | null = null;
+  await this.validateUpload(file, user, plan);
 
-    try {
-      const userFilesCount = await this.repo.count({
-        where: { userId: user.id },
-      });
+  const fileId = randomUUID();
+  const userFolder = path.join(process.cwd(), "storage/uploads", user.id);
 
-      if (userFilesCount >= plan.maxVideos) {
-        throw new Error("You reached your plan limit for number of videos.");
-      }
+  await mkdir(userFolder, { recursive: true });
 
-      if (file.size > plan.maxVideoSize) {
-        throw new Error("File exceeds maximum allowed size for your plan.");
-      }
+  const extension = file.name.split(".").pop();
+  const filename = `${fileId}.${extension}`;
+  const filePath = path.join(userFolder, filename);
 
-      const totalSize = await this.repo
-        .createQueryBuilder("file")
-        .select("SUM(file.size)", "sum")
-        .where("file.userId = :userId", { userId: user.id })
-        .getRawOne();
+  const buffer = Buffer.from(await file.arrayBuffer());
+  await writeFile(filePath, buffer);
 
-      if (parseInt(totalSize.sum || 0) + file.size > plan.maxStorage) {
-        throw new Error("You exceeded your storage limit.");
-      }
+  const newFile = this.repo.create({
+    id: fileId,
+    originalName: file.name,
+    filename,
+    path: filePath,
+    mimeType: file.type,
+    size: file.size,
+    visibility,
+    user,
+    status: FileStatus.PROCESSING,
+  });
 
-      const fileId = randomUUID();
-      const userFolder = path.join(process.cwd(), "storage/uploads", user.id);
+  const savedFile = await this.repo.save(newFile);
 
-      await mkdir(userFolder, { recursive: true });
+  this.processVideo(savedFile).catch(console.error);
 
-      const extension = file.name.split(".").pop();
-      const filename = `${fileId}.${extension}`;
-      filePath = path.join(userFolder, filename);
+  return savedFile;
+}
 
-      const buffer = Buffer.from(await file.arrayBuffer());
-      await writeFile(filePath, buffer);
 
-      const thumbFilename = `${fileId}.png`;
-      const thumbPath = path.join(userFolder, thumbFilename);
+private async processVideo(file: File) {
+  try {
+    const optimizedPath = file.path.replace(".mp4", "_optimized.mp4");
+    const thumbPath = file.path.replace(".mp4", ".png");
 
-      await execAsync(
-        `ffmpeg -i "${filePath}" -ss 00:00:01 -vframes 1 "${thumbPath}"`,
-      );
+    await execAsync(`
+      ffmpeg -i "${file.path}" \
+      -c:v libx264 -preset medium -crf 23 \
+      -c:a aac -b:a 128k \
+      -movflags +faststart \
+      "${optimizedPath}"
+    `);
 
-      const { stdout } = await execAsync(
-        `ffprobe -v error -show_entries format=duration -of csv=p=0 "${filePath}"`,
-      );
+    await execAsync(`
+      ffmpeg -i "${file.path}" -ss 00:00:01 -vframes 1 "${thumbPath}"
+    `);
 
-      const durationSeconds = Math.floor(parseFloat(stdout));
-      const durationFormatted = formatDuration(durationSeconds);
+    const { stdout } = await execAsync(
+      `ffprobe -v error -show_entries format=duration -of csv=p=0 "${optimizedPath}"`
+    );
 
-      if (durationSeconds > plan.maxDuration) {
-        throw new Error("Video is too long for your current plan.");
-      }
+    const duration = formatDuration(Math.floor(parseFloat(stdout)));
 
-      const { stdout: resolutionOut } = await execAsync(
-        `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "${filePath}"`,
-      );
+    await this.repo.update(file.id, {
+      path: optimizedPath,
+      thumbnail: path.basename(thumbPath),
+      duration,
+      status: FileStatus.READY,
+    });
 
-      const [width, height] = resolutionOut.split(",").map(Number);
+  } catch (err) {
+    await this.repo.update(file.id, {
+      status: FileStatus.FAILED
+    });
 
-      if (plan.quality === "1080p" && height > 1080) {
-        throw new Error("Max resolution for your plan is 1080p.");
-      } else if (plan.quality === "4K" && height > 2180) {
-        throw new Error("Max resolution for your plan is 4K");
-      }
-
-      const newFile = queryRunner.manager.create(File, {
-        id: fileId,
-        originalName: file.name,
-        filename,
-        path: filePath,
-        mimeType: file.type,
-        size: file.size,
-        visibility: visibility,
-        user: user,
-        thumbnail: thumbFilename,
-        duration: durationFormatted,
-      });
-
-      const savedFile = await queryRunner.manager.save(newFile);
-
-      await queryRunner.commitTransaction();
-      return savedFile;
-    } catch (error) {
-      if (filePath) {
-        await unlink(filePath).catch(() => {});
-      }
-
-      await queryRunner.rollbackTransaction();
-
-      throw error instanceof Error ? error : new Error(String(error));
-    } finally {
-      await queryRunner.release();
-    }
+    console.error("Processing failed:", err);
   }
+}
+
+private async validateUpload(file: globalThis.File, user: User, plan: any) {
+  const count = await this.repo.count({ where: { userId: user.id } });
+
+  if (count >= plan.maxVideos) {
+    throw new Error("Video limit reached");
+  }
+
+  if (file.size > plan.maxVideoSize) {
+    throw new Error("File too large");
+  }
+
+  const totalSize = await this.repo
+    .createQueryBuilder("file")
+    .select("SUM(file.size)", "sum")
+    .where("file.userId = :userId", { userId: user.id })
+    .getRawOne();
+
+  if ((parseInt(totalSize.sum || 0) + file.size) > plan.maxStorage) {
+    throw new Error("Storage limit exceeded");
+  }
+}
+
 
   async deleteFileById(id: string) {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -186,6 +185,28 @@ export class FileService {
       if (!file) throw new Error("File not found");
 
       file.originalName = newName;
+      const updatedFile = await queryRunner.manager.save(file);
+
+      await queryRunner.commitTransaction();
+      return updatedFile;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async updateVisibility(id: string, visible: FileVisibility) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const file = await queryRunner.manager.findOne(File, { where: { id } });
+      if (!file) throw new Error("File not found");
+
+      file.visibility = visible;
       const updatedFile = await queryRunner.manager.save(file);
 
       await queryRunner.commitTransaction();

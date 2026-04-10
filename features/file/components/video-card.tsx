@@ -1,12 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Copy, Check, Play, Calendar, Code2, TrashIcon } from "lucide-react";
+import { Copy, Check, Play, Calendar, Code2, TrashIcon, Globe, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeleteFileDialog } from "./delete-dialog";
-import { PlainFile } from "@/lib/types/file";
+import { FileVisibility, PlainFile } from "@/lib/types/file";
 import { FileDropdown } from "./file-dropdown";
 import VideoDialog from "./video-dialog";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
 
 interface VideoCardProps {
   file: PlainFile;
@@ -19,6 +21,7 @@ const VideoCard = ({ file, onEmbedClick }: VideoCardProps) => {
   const resourceLink = `${typeof window !== "undefined" ? window.location.origin : ""}/resource/${file.id}`;
   const thumbnail = `/api/file/thumbnail/${file.id}`;
   const [openFullScreen, setOpenFullScreen] = useState<boolean>(false);
+  const [visible, setVisible] = useState<FileVisibility>(file.visibility);
 
   const embedCode = `<iframe
     src=${resourceLink}
@@ -73,8 +76,41 @@ const VideoCard = ({ file, onEmbedClick }: VideoCardProps) => {
 
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Calendar className="w-3.5 h-3.5" />
-            <span>{file.createdAt.toDateString()}</span>
+            <span className="pt-1">{file.createdAt.toDateString()}</span>
           </div>
+
+           <div className="flex items-center justify-between py-1">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            {visible === "public" ? (
+              <Globe className="w-3.5 h-3.5 text-primary" />
+            ) : (
+              <Lock className="w-3.5 h-3.5" />
+            )}
+            <span className="pt-1">{visible === "public" ? "Public" : "Private"}</span>
+          </div>
+          <Switch
+            checked={visible === FileVisibility.PUBLIC}
+            onCheckedChange={async (checked: boolean) => {
+                const visible = checked ? FileVisibility.PUBLIC : FileVisibility.PRIVATE;
+                setVisible(visible);
+                try {
+                  const res = await fetch("/api/file/change-visibility", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: file.id, visible }),
+                  });
+
+                  const data = await res.json();
+                  if (!res.ok) throw new Error(data.error || "Rename failed");
+                } catch (err: any) {
+                  console.error(err);
+                  toast.error(err.message || "Failed to rename file");
+                }
+              }
+            }
+            className="scale-75 origin-right"
+          />
+        </div>
 
           <div className="flex gap-2 pt-1">
             <Button
