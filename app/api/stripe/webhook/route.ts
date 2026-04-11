@@ -3,12 +3,22 @@ import Stripe from "stripe";
 import { getDataSource } from "@/app/api/connection";
 import { UsersService } from "@/app/api/services/user.service";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-01-28.clover",
-});
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
+
+  if (!key) {
+    throw new Error("Missing STRIPE_SECRET_KEY");
+  }
+
+  return new Stripe(key, {
+    apiVersion: "2026-03-25.dahlia",
+  });
+}
 
 export async function POST(req: Request) {
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+  const stripe = getStripe();
+
   const payload = await req.text();
   const sig = req.headers.get("stripe-signature")!;
 

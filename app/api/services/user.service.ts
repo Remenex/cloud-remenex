@@ -22,6 +22,14 @@ export class UsersService {
     });
   }
 
+  async updateBandwidth(userId: string, bandwidth: number){
+    await this.repo.increment(
+      { id: userId },
+      "bandwidthUsed",
+      bandwidth
+    );
+  }
+
   async findOrCreateByEmail(userData: CreateUser) {
     let user = await this.repo.findOne({
       where: { email: userData.email },

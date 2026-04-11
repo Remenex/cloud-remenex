@@ -9,6 +9,7 @@ import { FileDropdown } from "./file-dropdown";
 import VideoDialog from "./video-dialog";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { generateVideoToken } from "@/lib/helpers/video-token";
 
 interface VideoCardProps {
   file: PlainFile;
@@ -18,7 +19,37 @@ interface VideoCardProps {
 const VideoCard = ({ file, onEmbedClick }: VideoCardProps) => {
   const [copied, setCopied] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const resourceLink = `${typeof window !== "undefined" ? window.location.origin : ""}/resource/${file.id}`;
+
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadToken() {
+      try {
+        const res = await fetch(`/api/video-token/${file.id}?context=dashboard`);
+        const data = await res.json();
+
+        if (!isMounted) return;
+
+        setToken(data.token);
+      } catch (err) {
+        console.error("Failed to load video token", err);
+      }
+    }
+
+    loadToken();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [file.id]);
+
+  const resourceLink =
+  token
+    ? `${window.location.origin}/resource/${file.id}?token=${token}`
+    : null;
+    
   const thumbnail = `/api/file/thumbnail/${file.id}`;
   const [openFullScreen, setOpenFullScreen] = useState<boolean>(false);
   const [visible, setVisible] = useState<FileVisibility>(file.visibility);
@@ -139,7 +170,8 @@ const VideoCard = ({ file, onEmbedClick }: VideoCardProps) => {
       </motion.div>
 
       <VideoDialog
-        video={file}
+        videoName={file.originalName}
+        videoURL={resourceLink ?? ''}
         open={openFullScreen}
         onOpenChange={setOpenFullScreen}
       />

@@ -15,6 +15,7 @@ export type CreateFile = Omit<
   | "updatedAt"
   | "thumbnail"
   | "duration"
+  | "status"
 >;
 
 export type PlainFile = Omit<File, "user">;

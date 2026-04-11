@@ -2,12 +2,10 @@
 
 import VideoCard from "./video-card";
 import { PlainFile } from "@/lib/types/file";
-import Button from "@/components/button";
 import { Grid3X3, List, Search } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import EmbedCodePanel from "./embed-code-panel";
-import { DeleteFileDialog } from "./delete-dialog";
 
 export default function MyFilesClient({ files }: { files: PlainFile[] }) {
   const [search, setSearch] = useState("");

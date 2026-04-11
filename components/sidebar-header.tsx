@@ -7,8 +7,8 @@ import UploadModal from "../features/file/components/upload-modal";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  title: string;
-  showUploadButton: boolean;
+  title?: string;
+  showUploadButton?: boolean;
 };
 
 export default function SidebarHeader({

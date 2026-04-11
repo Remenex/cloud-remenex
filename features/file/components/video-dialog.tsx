@@ -8,26 +8,26 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { PlainFile } from "@/lib/types/file";
+import { useEffect, useState } from "react";
 
 type Props = {
-  video: PlainFile;
+  videoName: string;
+  videoURL: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-export default function VideoDialog({ video, open, onOpenChange }: Props) {
-  const resourceLink = `${typeof window !== "undefined" ? window.location.origin : ""}/resource/${video.id}`;
-
+export default function VideoDialog({videoName, videoURL, open, onOpenChange }: Props) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl w-full">
         <DialogHeader>
-          <DialogTitle>{video?.originalName}</DialogTitle>
+          <DialogTitle>{videoName}</DialogTitle>
         </DialogHeader>
         <div className="mt-4">
-          {video && (
+          {videoURL && (
             <video
-              src={resourceLink}
+              src={videoURL}
               controls
               autoPlay
               className="w-full rounded-lg"

@@ -54,7 +54,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
 
-  session: { strategy: "jwt" as const }, // ili "jwt" za credentials-only
+  session: { strategy: "jwt" as const },
 
   pages: {
     signIn: "/auth/signin",
@@ -73,6 +73,8 @@ export const authOptions: NextAuthOptions = {
             name: user.name ?? "",
             email: user.email,
             emailVerified: new Date(),
+            plan: "FREE",
+            bandwidthUsed: 0,
           };
 
           const dbUser = await userService.findOrCreateByEmail(userData);

@@ -6,7 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import UserAvatar from "@/features/user/components/user-avatar";
+import { UserAvatar } from "@/features/user/components/user-avatar";
 import {
   BadgeCheckIcon,
   BellIcon,
@@ -20,7 +20,7 @@ export function UserNavDialog() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="rounded-full focus:outline-none cursor-pointer">
-          <UserAvatar sizeRem={3} />
+          <UserAvatar width={48} height={48} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">

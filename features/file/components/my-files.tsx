@@ -26,6 +26,7 @@ export default async function MyFiles() {
     updatedAt: file.updatedAt,
     duration: file.duration,
     thumbnail: file.thumbnail,
+    status: file.status,
   }));
 
   return (

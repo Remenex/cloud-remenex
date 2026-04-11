@@ -18,8 +18,10 @@ export async function GET(
   if (!file) return new NextResponse("Not found", { status: 404 });
 
   const thumbnailPath = path.join(
-    path.dirname(file.path),
-    file.thumbnail
+    process.cwd(),
+    "storage/uploads",
+    file.userId,
+    file.thumbnail,
   );
   console.log("Thumbnail path: " + thumbnailPath);
   const buffer = await readFile(thumbnailPath);
@@ -28,14 +30,14 @@ export async function GET(
     headers: { "Content-Type": "image/png" },
   });
 }
-
 export async function DELETE(
   req: Request,
-  context: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await context.params;
+
   const ds = await getDataSource();
   const fileService = new FileService(ds);
-  const { id } = context.params;
 
   try {
     const result = await fileService.deleteFileById(id);

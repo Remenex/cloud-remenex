@@ -20,6 +20,9 @@ export class User {
   @Column({ default: "FREE" })
   plan: "FREE" | "CREATOR" | "PRO";
 
+  @Column({default: 0})
+  bandwidthUsed: number;  
+
   @Column({ type: "timestamp", nullable: true })
   emailVerified?: Date;
 

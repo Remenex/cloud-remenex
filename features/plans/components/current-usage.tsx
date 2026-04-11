@@ -68,7 +68,7 @@ export default function CurrentUsage() {
           <UsageBar
             label="Storage"
             used={usageData.storageUsed}
-            limit={storageLimitGB}
+            limit={parseInt(storageLimitGB.toString())}
             unit="GB"
           />
           <UsageBar
